@@ -108,7 +108,18 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
     }
 
     override fun onBuyCryptoClicked(crypto: Crypto) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (crypto.available > 0) {
+            for (userCrypto in user!!.cryptosList!!) {
+                if (userCrypto.name == crypto.name) {
+                    userCrypto.available += 1
+                    break
+                }
+            }
+            crypto.available--
+
+            firebaseService.updateUser(user!!, null)
+            firebaseService.updateCrypto(crypto)
+        }
     }
 
     fun loadUserCryptos() {
