@@ -11,7 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.platzi.realtimetrader.R
 import com.platzi.realtimetrader.model.User
 import com.platzi.realtimetrader.network.Callback
-import com.platzi.realtimetrader.network.FirebaseService
+import com.platzi.realtimetrader.network.FirestoreService
 import kotlinx.android.synthetic.main.activity_login.*
 
 /**
@@ -29,13 +29,13 @@ class LoginActivity : AppCompatActivity() {
 
     private val TAG = "LoginActivity"
 
-    lateinit var firebaseService: FirebaseService
+    lateinit var firestoreService: FirestoreService
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        firebaseService = FirebaseService(FirebaseFirestore.getInstance())
+        firestoreService = FirestoreService(FirebaseFirestore.getInstance())
         auth.signOut()
     }
 
@@ -49,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
                     Log.d(TAG, "signInAnonymously:success")
                     val username = username.text.toString()
 
-                    firebaseService.findUserById(username, object : Callback<User> {
+                    firestoreService.findUserById(username, object : Callback<User> {
                         override fun onSuccess(result: User?) {
 
                             if (result == null) {
@@ -78,7 +78,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun saveUserAndStartMainActivity(userDocument: User, username: String, view: View) {
-        firebaseService.setDocument(userDocument, "users", userDocument.username, object : Callback<Void> {
+        firestoreService.setDocument(userDocument, "users", userDocument.username, object : Callback<Void> {
             override fun onSuccess(result: Void?) {
                 startMainActivity(username)
             }
