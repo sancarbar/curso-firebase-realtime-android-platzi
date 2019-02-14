@@ -14,6 +14,7 @@ import com.platzi.realtimetrader.model.Crypto
 import com.platzi.realtimetrader.model.User
 import com.platzi.realtimetrader.network.Callback
 import com.platzi.realtimetrader.network.FirebaseService
+import com.platzi.realtimetrader.network.RealtimeDataListener
 import com.platzi.realtimetrader.ui.adapter.CryptosAdapter
 import com.platzi.realtimetrader.ui.adapter.CryptosAdapterListener
 import com.squareup.picasso.Picasso
@@ -83,6 +84,7 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
                                 firebaseService.updateUser(user!!, null)
                             }
                             loadUserCryptos()
+                            addRealtimeDatabaseListeners(user!!, cryptosAdapter.cryptosList)
                         }
 
                         override fun onFailed(exception: Exception) {
@@ -137,6 +139,42 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
             getString(R.string.coin_info, crypto.name, crypto.available.toString())
         Picasso.get().load(crypto.imageUrl).into(view.findViewById<ImageView>(R.id.coinIcon))
         infoPanel.addView(view)
+    }
+
+    fun addRealtimeDatabaseListeners(currentUser: User, cryptosList: List<Crypto>) {
+        firebaseService.listenForUpdates(currentUser, object : RealtimeDataListener<User> {
+            override fun onDataChange(updateData: User) {
+                user = updateData
+                loadUserCryptos()
+            }
+
+            override fun onError(exception: java.lang.Exception) {
+                Log.e("Developer", "error", exception)
+                showGeneralServerErrorMessage()
+            }
+
+        })
+
+        firebaseService.listenForUpdates(cryptosList, object : RealtimeDataListener<Crypto> {
+            override fun onDataChange(updateData: Crypto) {
+                var pos = 0
+                for (crypto in cryptosAdapter.cryptosList) {
+                    if (crypto.name.equals(updateData.name)) {
+                        crypto.available = updateData.available
+                        cryptosAdapter.notifyItemChanged(pos)
+                        break
+                    }
+                    pos++
+                }
+
+            }
+
+            override fun onError(exception: java.lang.Exception) {
+                Log.e("Developer", "error", exception)
+                showGeneralServerErrorMessage()
+            }
+
+        })
     }
 
 }
