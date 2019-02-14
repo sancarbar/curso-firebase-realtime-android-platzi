@@ -9,7 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.platzi.realtimetrader.R
 import com.platzi.realtimetrader.model.Crypto
 import com.platzi.realtimetrader.network.Callback
-import com.platzi.realtimetrader.network.FirebaseService
+import com.platzi.realtimetrader.network.FirestoreService
 import com.platzi.realtimetrader.ui.adapter.CryptosAdapter
 import com.platzi.realtimetrader.ui.adapter.CryptosAdapterListener
 import kotlinx.android.synthetic.main.activity_trader.*
@@ -20,14 +20,14 @@ import kotlinx.android.synthetic.main.activity_trader.*
  */
 class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
 
-    lateinit var firebaseService: FirebaseService
+    lateinit var firestoreService: FirestoreService
 
     private val cryptosAdapter: CryptosAdapter = CryptosAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trader)
-        firebaseService = FirebaseService(FirebaseFirestore.getInstance())
+        firestoreService = FirestoreService(FirebaseFirestore.getInstance())
         configureRecyclerView()
         loadCryptos()
     }
@@ -40,7 +40,7 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
     }
 
     private fun loadCryptos() {
-        firebaseService.getCryptos(object : Callback<List<Crypto>> {
+        firestoreService.getCryptos(object : Callback<List<Crypto>> {
 
             override fun onSuccess(result: List<Crypto>?) {
                 this@TraderActivity.runOnUiThread {
