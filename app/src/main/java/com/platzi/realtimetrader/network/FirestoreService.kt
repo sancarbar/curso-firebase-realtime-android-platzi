@@ -12,7 +12,7 @@ import com.platzi.realtimetrader.model.User
 const val CRYPTO_COLLECTION_NAME = "cryptos"
 const val USERS_COLLECTION_NAME = "users"
 
-class FirebaseService(val firebaseFirestore: FirebaseFirestore) {
+class FirestoreService(val firebaseFirestore: FirebaseFirestore) {
 
 
     fun setDocument(data: Any, collectionName: String, id: String, callback: Callback<Void>) {
