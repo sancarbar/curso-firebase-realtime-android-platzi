@@ -45,4 +45,39 @@ class FirebaseService(val firebaseFirestore: FirebaseFirestore) {
     }
 
 
+    fun getCryptos(callback: Callback<List<Crypto>>) {
+        firebaseFirestore.collection(CRYPTO_COLLECTION_NAME)
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+
+                    val cryptosList = result.toObjects(Crypto::class.java)
+                    callback.onSuccess(cryptosList)
+                    break
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Developer", "Error getting documents.", exception)
+                callback.onFailed(exception)
+            }
+    }
+
+    fun findUserById(id: String, callback: Callback<User>) {
+        firebaseFirestore.collection(USERS_COLLECTION_NAME).document(id)
+            .get()
+            .addOnSuccessListener { result ->
+                if (result.data == null)
+                    callback.onSuccess(null)
+                else
+                    callback.onSuccess(result.toObject(User::class.java)!!)
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Developer", "Error getting documents.", exception)
+                callback.onFailed(exception)
+            }
+
+    }
+
+
+
 }

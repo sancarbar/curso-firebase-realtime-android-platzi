@@ -49,11 +49,28 @@ class LoginActivity : AppCompatActivity() {
                     Log.d(TAG, "signInAnonymously:success")
                     val username = username.text.toString()
 
-                    val user = User()
-                    user.username = username
-                    saveUserAndStartMainActivity(user, username, view)
+                    firebaseService.findUserById(username, object : Callback<User> {
+                        override fun onSuccess(result: User?) {
+
+                            if (result == null) {
+                                val userDocument = User()
+                                userDocument.username = username
+                                saveUserAndStartMainActivity(userDocument, username, view)
+                            } else
+                                startMainActivity(result.username)
+                        }
+
+                        override fun onFailed(exception: Exception) {
+                            Log.e("Developer", "error finding user", exception)
+                            view.isEnabled = true
+                        }
+
+                    })
+
 
                 } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInAnonymously:failure", task.exception)
                     showErrorMessage(button)
                     view.isEnabled = true
                 }
@@ -65,6 +82,7 @@ class LoginActivity : AppCompatActivity() {
             override fun onSuccess(result: Void?) {
                 startMainActivity(username)
             }
+
 
             override fun onFailed(e: Exception) {
                 showErrorMessage(view)
