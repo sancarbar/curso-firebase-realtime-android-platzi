@@ -11,7 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.platzi.realtimetrader.R
 import com.platzi.realtimetrader.model.User
 import com.platzi.realtimetrader.network.Callback
-import com.platzi.realtimetrader.network.FirebaseService
+import com.platzi.realtimetrader.network.FirestoreService
 import com.platzi.realtimetrader.network.USERS_COLLECTION_NAME
 import kotlinx.android.synthetic.main.activity_login.*
 
@@ -30,13 +30,13 @@ class LoginActivity : AppCompatActivity() {
 
     private val TAG = "LoginActivity"
 
-    lateinit var firebaseService: FirebaseService
+    lateinit var firestoreService: FirestoreService
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        firebaseService = FirebaseService(FirebaseFirestore.getInstance())
+        firestoreService = FirestoreService(FirebaseFirestore.getInstance())
         auth.signOut()
     }
 
@@ -62,7 +62,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun saveUserAndStartMainActivity(userDocument: User, username: String, view: View) {
-        firebaseService.setDocument(
+        firestoreService.setDocument(
             userDocument,
             USERS_COLLECTION_NAME,
             userDocument.username,
