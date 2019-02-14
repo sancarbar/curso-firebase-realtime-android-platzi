@@ -13,7 +13,7 @@ import com.platzi.realtimetrader.R
 import com.platzi.realtimetrader.model.Crypto
 import com.platzi.realtimetrader.model.User
 import com.platzi.realtimetrader.network.Callback
-import com.platzi.realtimetrader.network.FirebaseService
+import com.platzi.realtimetrader.network.FirestoreService
 import com.platzi.realtimetrader.ui.adapter.CryptosAdapter
 import com.platzi.realtimetrader.ui.adapter.CryptosAdapterListener
 import com.squareup.picasso.Picasso
@@ -25,7 +25,7 @@ import kotlinx.android.synthetic.main.activity_trader.*
  */
 class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
 
-    lateinit var firebaseService: FirebaseService
+    lateinit var firestoreService: FirestoreService
 
     private val cryptosAdapter: CryptosAdapter = CryptosAdapter(this)
 
@@ -37,7 +37,7 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trader)
-        firebaseService = FirebaseService(FirebaseFirestore.getInstance())
+        firestoreService = FirestoreService(FirebaseFirestore.getInstance())
 
         username = intent.extras!![USERNAME_KEY]!!.toString()
         usernameTextView.text = username
@@ -54,7 +54,7 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
     }
 
     private fun loadCryptos() {
-        firebaseService.getCryptos(object : Callback<List<Crypto>> {
+        firestoreService.getCryptos(object : Callback<List<Crypto>> {
 
             override fun onSuccess(result: List<Crypto>?) {
                 this@TraderActivity.runOnUiThread {
@@ -62,7 +62,7 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
                     cryptosAdapter.cryptosList = result!!
                     cryptosAdapter.notifyDataSetChanged()
 
-                    firebaseService.findUserById(username!!, object : Callback<User> {
+                    firestoreService.findUserById(username!!, object : Callback<User> {
 
                         override fun onSuccess(result: User?) {
                             user = result
@@ -80,7 +80,7 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
                                 }
 
                                 user!!.cryptosList = userCryptoList
-                                firebaseService.updateUser(user!!, null)
+                                firestoreService.updateUser(user!!, null)
                             }
                             loadUserCryptos()
                         }
