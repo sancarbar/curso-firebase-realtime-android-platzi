@@ -7,7 +7,11 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.platzi.realtimetrader.R
+import com.platzi.realtimetrader.model.User
+import com.platzi.realtimetrader.network.Callback
+import com.platzi.realtimetrader.network.FirebaseService
 import kotlinx.android.synthetic.main.activity_login.*
 
 /**
@@ -25,10 +29,13 @@ class LoginActivity : AppCompatActivity() {
 
     private val TAG = "LoginActivity"
 
+    lateinit var firebaseService: FirebaseService
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        firebaseService = FirebaseService(FirebaseFirestore.getInstance())
         auth.signOut()
     }
 
@@ -41,14 +48,28 @@ class LoginActivity : AppCompatActivity() {
                     // Login exitóso, actualizar la vista con la información del usuario
                     Log.d(TAG, "signInAnonymously:success")
                     val username = username.text.toString()
-                    startMainActivity(username)
+
+                    val user = User()
+                    user.username = username
+                    saveUserAndStartMainActivity(user, username, view)
+
                 } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInAnonymously:failure", task.exception)
                     showErrorMessage(button)
                     view.isEnabled = true
                 }
             }
+    }
+
+    private fun saveUserAndStartMainActivity(userDocument: User, username: String, view: View) {
+        firebaseService.setDocument(userDocument, "users", userDocument.username, object : Callback<Void> {
+            override fun onSuccess(result: Void?) {
+                startMainActivity(username)
+            }
+
+            override fun onFailed(e: Exception) {
+                showErrorMessage(view)
+            }
+        })
     }
 
     private fun showErrorMessage(view: View) {
