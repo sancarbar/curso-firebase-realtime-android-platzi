@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Realtime Trader</string>
+    <string name="start">Start</string>
+    <string name="username">username</string>
+    <string name="app_icon">app icon</string>
+    <string name="realtime_trader">Realtime Trader</string>
 </resources>
