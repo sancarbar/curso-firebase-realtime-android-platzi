@@ -45,6 +45,12 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
 
         configureRecyclerView()
         loadCryptos()
+
+        fab.setOnClickListener { view ->
+            Snackbar.make(view, getString(R.string.generating_new_cryptos), Snackbar.LENGTH_SHORT)
+                .setAction("Info", null).show()
+            generateCryptoCurrenciesRandom()
+        }
     }
 
     private fun configureRecyclerView() {
@@ -176,5 +182,14 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
 
         })
     }
+
+    private fun generateCryptoCurrenciesRandom() {
+        for (crypto in cryptosAdapter.cryptosList) {
+            val amount = (1..10).random()
+            crypto.available += amount
+            firebaseService.updateCrypto(crypto)
+        }
+    }
+
 
 }
