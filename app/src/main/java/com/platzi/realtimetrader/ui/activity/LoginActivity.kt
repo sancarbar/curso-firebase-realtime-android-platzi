@@ -12,6 +12,7 @@ import com.platzi.realtimetrader.R
 import com.platzi.realtimetrader.model.User
 import com.platzi.realtimetrader.network.Callback
 import com.platzi.realtimetrader.network.FirebaseService
+import com.platzi.realtimetrader.network.USERS_COLLECTION_NAME
 import kotlinx.android.synthetic.main.activity_login.*
 
 /**
@@ -61,7 +62,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun saveUserAndStartMainActivity(userDocument: User, username: String, view: View) {
-        firebaseService.setDocument(userDocument, "users", userDocument.username, object : Callback<Void> {
+        firebaseService.setDocument(
+            userDocument,
+            USERS_COLLECTION_NAME,
+            userDocument.username,
+            object : Callback<Void> {
             override fun onSuccess(result: Void?) {
                 startMainActivity(username)
             }
