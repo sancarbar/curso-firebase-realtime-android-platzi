@@ -57,40 +57,43 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
         firestoreService.getCryptos(object : Callback<List<Crypto>> {
 
             override fun onSuccess(result: List<Crypto>?) {
+
+                firestoreService.findUserById(username!!, object : Callback<User> {
+
+                    override fun onSuccess(result: User?) {
+                        user = result
+                        Log.d("Developer", "User:  ${result!!.username}")
+                        if (user!!.cryptosList == null) {
+
+                            val userCryptoList = mutableListOf<Crypto>()
+
+                            for (crypto in cryptosAdapter.cryptosList) {
+                                val cryptoUser = Crypto()
+                                cryptoUser.name = crypto.name
+                                cryptoUser.available = 0
+                                cryptoUser.imageUrl = crypto.imageUrl
+                                userCryptoList.add(cryptoUser)
+                            }
+
+                            user!!.cryptosList = userCryptoList
+                            firestoreService.updateUser(user!!, null)
+                        }
+                        loadUserCryptos()
+                    }
+
+                    override fun onFailed(exception: Exception) {
+                        Log.e("Developer", "error", exception)
+                        showGeneralServerErrorMessage()
+                    }
+
+                })
+
+
                 this@TraderActivity.runOnUiThread {
 
                     cryptosAdapter.cryptosList = result!!
                     cryptosAdapter.notifyDataSetChanged()
 
-                    firestoreService.findUserById(username!!, object : Callback<User> {
-
-                        override fun onSuccess(result: User?) {
-                            user = result
-                            Log.d("Developer", "User:  ${result!!.username}")
-                            if (user!!.cryptosList == null) {
-
-                                val userCryptoList = mutableListOf<Crypto>()
-
-                                for (crypto in cryptosAdapter.cryptosList) {
-                                    val cryptoUser = Crypto()
-                                    cryptoUser.name = crypto.name
-                                    cryptoUser.available = 0
-                                    cryptoUser.imageUrl = crypto.imageUrl
-                                    userCryptoList.add(cryptoUser)
-                                }
-
-                                user!!.cryptosList = userCryptoList
-                                firestoreService.updateUser(user!!, null)
-                            }
-                            loadUserCryptos()
-                        }
-
-                        override fun onFailed(exception: Exception) {
-                            Log.e("Developer", "error", exception)
-                            showGeneralServerErrorMessage()
-                        }
-
-                    })
 
                 }
             }
@@ -112,10 +115,12 @@ class TraderActivity : AppCompatActivity(), CryptosAdapterListener {
     }
 
     fun loadUserCryptos() {
-        if (user != null && user!!.cryptosList != null) {
-            infoPanel.removeAllViews()
-            for (crypto in user!!.cryptosList!!) {
-                addUserCryptoInfoRow(crypto)
+        runOnUiThread {
+            if (user != null && user!!.cryptosList != null) {
+                infoPanel.removeAllViews()
+                for (crypto in user!!.cryptosList!!) {
+                    addUserCryptoInfoRow(crypto)
+                }
             }
         }
     }
